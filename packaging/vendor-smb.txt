@@ -1,0 +1,3 @@
+# SMB-Bibliothek, falls das System kein python3-smbprotocol hat (cryptography kommt aus apt)
+smbprotocol==1.15.0
+pyspnego==0.11.2

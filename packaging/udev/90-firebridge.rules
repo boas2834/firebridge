@@ -1,0 +1,5 @@
+# Firebridge: Wechseldatenträger nie automatisch einbinden.
+# UDISKS_IGNORE blendet sie im Dateimanager aus, UDISKS_AUTO=0 verbietet Automount.
+# Eingebunden wird nur durch firebridged, read-only und im eigenen Namespace.
+SUBSYSTEM=="block", ENV{ID_BUS}=="usb", ENV{UDISKS_IGNORE}="1", ENV{UDISKS_AUTO}="0"
+SUBSYSTEM=="block", KERNEL=="mmcblk[0-9]*", ENV{UDISKS_IGNORE}="1", ENV{UDISKS_AUTO}="0"

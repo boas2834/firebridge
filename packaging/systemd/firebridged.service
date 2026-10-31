@@ -1,0 +1,40 @@
+[Unit]
+Description=Firebridge Prüfdienst (USB-Datenträger read-only einbinden und prüfen)
+Documentation=https://github.com/boas2834/firebridge
+After=dbus.service systemd-udevd.service clamav-daemon.service usbguard.service
+Wants=clamav-daemon.service
+
+[Service]
+Type=dbus
+BusName=io.github.boas2834.Firebridge1
+ExecStart=/usr/local/bin/firebridged
+Restart=on-failure
+RestartSec=2
+
+# Eigener Mount-Namespace: die Read-only-Einbindungen unter /run/firebridge
+# sind für die Desktop-Sitzung unsichtbar.
+RuntimeDirectory=firebridge
+RuntimeDirectoryMode=0700
+StateDirectory=firebridge
+StateDirectoryMode=0750
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+NoNewPrivileges=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+# IPv4/IPv6 nur für die SMB-Übertragung. Die nftables-Tabelle "inet firebridge"
+# sperrt jeden Netzverkehr dieser Unit; der Dienst öffnet nur während einer
+# freigegebenen Übertragung tcp/445 zur IP des Ziel-Servers.
+RestrictAddressFamilies=AF_UNIX AF_NETLINK AF_INET AF_INET6
+# Nur was zum Einbinden, Lesen, Schreibschutz-Setzen und für nftables nötig ist
+CapabilityBoundingSet=CAP_SYS_ADMIN CAP_DAC_READ_SEARCH CAP_DAC_OVERRIDE CAP_FOWNER CAP_CHOWN CAP_NET_ADMIN
+# Beim Beenden (auch nach einem Absturz) die Netzwerk-Regeln wegräumen
+ExecStopPost=-/usr/sbin/nft delete table inet firebridge
+
+[Install]
+WantedBy=multi-user.target

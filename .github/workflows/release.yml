@@ -1,0 +1,75 @@
+# Baut bei jedem Versions-Tag (z. B. v0.5.0) die Debian-Pakete für amd64 und arm64 und hängt
+# sie an ein GitHub-Release. Von Hand: Actions → Release → Run workflow; fehlt der Tag noch,
+# legt das Release ihn auf dem gewählten Branch an.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag, z. B. v0.5.0 (wird angelegt, falls er fehlt)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tag auschecken, falls vorhanden
+        run: |
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            git checkout -q "$TAG"
+          fi
+          echo "TARGET=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Version prüfen
+        run: |
+          VERSION=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' firebridge/__init__.py)
+          if [ "v$VERSION" != "$TAG" ]; then
+            echo "Tag $TAG passt nicht zur Version $VERSION in firebridge/__init__.py" >&2
+            exit 1
+          fi
+
+      - name: Pakete bauen
+        run: |
+          tools/build-deb.sh --arch amd64 dist
+          tools/build-deb.sh --arch arm64 dist
+          cd dist && sha256sum *.deb > SHA256SUMS && cat SHA256SUMS
+
+      - name: Release anlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cat > notes.md <<NOTES
+          Fertige Debian-Pakete der Firebridge ${TAG#v}.
+
+          | Datei | Für |
+          |---|---|
+          | \`firebridge_*_amd64.deb\` | PC mit Debian 13 (Trixie) oder LMDE 7 |
+          | \`firebridge_*_arm64.deb\` | Raspberry Pi 4/5 mit Raspberry Pi OS auf Basis von Debian 13 |
+
+          Installieren und Admin-Passwort festlegen:
+
+          \`\`\`sh
+          sudo apt install ./firebridge_*_amd64.deb
+          sudo firebridge-admin-passwort
+          \`\`\`
+
+          Prüfsummen in \`SHA256SUMS\`. Alles Weitere im [Handbuch](https://github.com/${GITHUB_REPOSITORY}/blob/${TAG}/docs/HANDBUCH.md).
+          NOTES
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" dist/*.deb dist/SHA256SUMS --clobber
+          else
+            gh release create "$TAG" dist/*.deb dist/SHA256SUMS --target "$TARGET" \
+              --title "Firebridge ${TAG#v}" --notes-file notes.md
+          fi

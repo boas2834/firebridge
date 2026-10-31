@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "firebridge"
+version = "0.5.1"
+description = "Prüfstation für USB-Sticks und Wechseldatenträger"
+license = {text = "PolyForm-Noncommercial-1.0.0"}
+requires-python = ">=3.11"
+dependencies = ["dbus-next>=0.2.3", "pyudev>=0.24", "smbprotocol>=1.10", "yara-x>=1.0", "oletools>=0.60", "python-magic>=0.4.27"]
+
+[project.optional-dependencies]
+gui = ["PySide6>=6.5"]
+test = ["pytest"]
+
+[project.scripts]
+firebridged = "firebridge.daemon:main"
+firebridge-gui = "firebridge.gui.app:main"
+firebridge-update = "firebridge.update:main"
+
+[tool.setuptools.packages.find]
+include = ["firebridge*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

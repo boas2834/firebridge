@@ -1,0 +1,111 @@
+# Einstellungen der Firebridge (Etappe 3). Nach Änderungen:
+#   sudo systemctl restart firebridged
+
+station_name = "Prüfstation 01"
+
+# Scan-Engine: "auto" (clamd, sonst clamscan), "clamd" oder "clamscan"
+scan_backend = "auto"
+clamd_socket = "/run/clamav/clamd.ctl"
+scan_workers = 4
+
+# Warnung in der GUI, wenn die Signaturen älter sind (Stunden)
+signature_warn_hours = 36
+
+# Seriennummern, die nie als Prüfling erscheinen sollen (z. B. ein Datenstick,
+# der dauerhaft steckt). Der Boot-Stick wird automatisch erkannt.
+ignore_serials = []
+
+# --- Übertragung auf das Netzwerkshare (Etappe 2) -------------------------
+
+# Netzwerk-Sperre: "nftables" = der Dienst hat nur während einer freigegebenen
+# Übertragung Netz (tcp/445 zum Ziel-Server). "off" nur zum Testen!
+firewall = "nftables"
+
+# Darf das Ziel-Share in der Oberfläche (Einstellungen) geändert werden?
+share_editable = true
+
+# Auch Datenträger übertragen, bei denen einzelne Dateien nicht geprüft werden
+# konnten (Ergebnis "unvollständig")? Übertragen werden dann nur die sauberen.
+transfer_incomplete = false
+
+# Zeitlimit für Verbindungsaufbau und Antworten des Servers (Sekunden)
+smb_timeout = 30
+
+# --- Tiefenprüfung (Etappe 3) ---------------------------------------------
+
+# Regelsatz von YARA Forge: "core" (wenig Fehlalarme, empfohlen), "extended" oder "full"
+yara_forge_set = "core"
+# Eigene YARA-Regeln (*.yar), werden beim Update mit übersetzt
+yara_custom_dir = "/etc/firebridge/yara"
+# Grenzen je Datei: YARA-Zeitlimit (s), größere Dateien prüft nur ClamAV (MB)
+yara_timeout = 60
+yara_max_mb = 256
+office_max_mb = 100
+# Wie tief verschachtelte ZIP-Archive angesehen werden
+archive_depth = 2
+# Prüfergebnisse der letzten N Dateien merken (nach SHA-256), damit eine erneute
+# Prüfung desselben Sticks schneller geht. Neue Signaturen oder YARA-Regeln
+# leeren den Zwischenspeicher. 0 = aus
+scan_cache_size = 1000
+
+# --- Etappe 4: BadUSB
+# Neue USB-Geräte überwachen: Alarm bei Tastaturen, Netzwerkadaptern und Speichern mit
+# Tastatur; neue Tastaturen nur nach der Tipp-Probe. false nur zum Testen!
+usb_guard = true
+# Sekunden, um den Code auf einer neuen Tastatur einzutippen
+hid_probe_seconds = 120
+
+# Darf die Richtlinie in der Oberfläche (Einstellungen) geändert werden?
+policy_editable = true
+
+# --- VirusTotal (optional) ------------------------------------------------
+# Stufe, Lizenz und API-Key werden in der Oberfläche eingestellt (Einstellungen →
+# VirusTotal) und landen in /var/lib/firebridge/virustotal.json bzw. virustotal.key.
+# Hier stehen nur feste Grenzen. Die kostenlose Public API ist nur für
+# nicht-kommerzielle Nutzung erlaubt; für die Firma braucht es eine Premium-Lizenz.
+[virustotal]
+# Upload ganz verbieten (dann nur Hash-Abfrage möglich), z. B. auf Wunsch des Datenschutzes
+allow_upload = true
+# Darf VirusTotal in der Oberfläche eingestellt werden?
+editable = true
+# Drossel der kostenlosen API: 4 Anfragen pro Minute, 500 pro Tag
+requests_per_minute = 4
+daily_limit = 500
+# Mit Premium-Lizenz (0 = keine eigene Grenze)
+premium_requests_per_minute = 0
+premium_daily_limit = 0
+# Netzwerk-Fenster höchstens so lange offen (Minuten); nach einem Upload so lange auf
+# das Ergebnis warten (Sekunden)
+window_minutes = 15
+analysis_wait = 300
+max_upload_mb = 650
+
+# Startwerte für das Ziel-Share. Sobald in der Oberfläche gespeichert wird,
+# gelten die Werte von dort (/var/lib/firebridge/share.json).
+# Das Passwort hier nur eintragen, wenn die Datei nicht für alle lesbar ist
+# (der Installer legt sie mit Rechten 640 an).
+[share]
+# server = "nas01"          # Name oder IP
+# share = "scans"           # Freigabename
+# folder = "Eingang/USB"    # Unterordner (optional)
+# username = "firebridge"
+# domain = ""               # Domäne/Arbeitsgruppe (optional)
+# password = ""
+# port = 445
+# encrypt = true            # SMB3-Verschlüsselung verlangen
+# verify = true             # nach dem Kopieren zurücklesen und SHA-256 vergleichen
+
+# Startwerte der Richtlinie für auffällige Dateien. Sobald in der Oberfläche
+# gespeichert wird, gelten die Werte von dort (/var/lib/firebridge/policy.json).
+#   "blockieren" = nie übertragen
+#   "freigabe"   = erst nach Freigabe im Ergebnis ("Auffällige freigeben …")
+#   "zulassen"   = wie sauber, der Treffer steht nur im Bericht
+# Infizierte Dateien (ClamAV) sind immer gesperrt.
+[policy]
+# executable = "blockieren"   # Programme: EXE, DLL, MSI, ELF, JAR, APK …
+# script = "freigabe"         # Skripte: .sh .ps1 .bat .vbs .js .py …
+# autostart = "freigabe"      # Verknüpfungen und Autostart: .lnk, .desktop, autorun.inf …
+# macro = "freigabe"          # Office-Dokumente mit Makros
+# pdf_active = "freigabe"     # PDF mit JavaScript oder Auto-Aktionen
+# encrypted = "blockieren"    # verschlüsselte Archive und Dokumente
+# yara = "blockieren"         # Treffer der YARA-Regeln

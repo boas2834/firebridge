@@ -1,0 +1,9 @@
+#!/bin/sh
+set -e
+# War die Firebridge vorher mit install.sh installiert, gehören ihre Dateien keinem Paket.
+# Alte Programmdateien entfernen, damit nichts Veraltetes liegen bleibt.
+if [ "$1" = install ] && [ -d /opt/firebridge ] && ! dpkg -S /opt/firebridge/firebridge >/dev/null 2>&1; then
+    systemctl stop firebridged 2>/dev/null || true
+    rm -rf /opt/firebridge/firebridge /opt/firebridge/vendor
+fi
+exit 0

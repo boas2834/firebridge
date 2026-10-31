@@ -1,0 +1,15 @@
+// Firebridge: Benutzer dürfen Datenträger nicht selbst über udisks einbinden
+// oder entsperren. Sonst könnte der Desktop einen Stick vor der Prüfung öffnen.
+polkit.addRule(function(action, subject) {
+    var blocked = [
+        "org.freedesktop.udisks2.filesystem-mount",
+        "org.freedesktop.udisks2.filesystem-mount-other-seat",
+        "org.freedesktop.udisks2.filesystem-mount-system",
+        "org.freedesktop.udisks2.encrypted-unlock",
+        "org.freedesktop.udisks2.encrypted-unlock-system",
+        "org.freedesktop.udisks2.loop-setup"
+    ];
+    if (blocked.indexOf(action.id) >= 0 && subject.user != "root") {
+        return polkit.Result.NO;
+    }
+});

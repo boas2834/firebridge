@@ -1,0 +1,13 @@
+#!/bin/sh
+set -e
+if [ "$1" = configure ]; then
+    # Startskripte aus einer früheren Installation mit install.sh würden die des Pakets verdecken
+    for f in firebridged firebridge-gui firebridge-update firebridge-admin-passwort firebridge-kiosk \
+             firebridge-kiosk-session; do
+        rm -f "/usr/local/bin/$f"
+    done
+    # Benutzer, der apt mit sudo aufgerufen hat, darf die Firebridge bedienen
+    TARGET_USER=${SUDO_USER:-} FIREBRIDGE_NO_PROMPT=1 \
+        sh /usr/share/firebridge/packaging/setup-system.sh /usr/share/firebridge/packaging /usr/bin 0
+fi
+exit 0

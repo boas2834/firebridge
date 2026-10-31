@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=Firebridge
+GenericName=USB-Prüfstation
+Comment=USB-Sticks schreibgeschützt einbinden und auf Schadsoftware prüfen
+Exec=firebridge-gui
+Icon=drive-removable-media
+Terminal=false
+Categories=System;Security;
+StartupNotify=true

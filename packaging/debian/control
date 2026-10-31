@@ -1,0 +1,17 @@
+Package: firebridge
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: Firebridge <firebridge@localhost>
+Installed-Size: @SIZE@
+Depends: python3 (>= 3.11), python3-pyside6.qtwidgets, python3-dbus-next, python3-pyudev, python3-cryptography,
+ python3-magic, nftables, clamav, clamav-daemon, clamav-freshclam, udisks2, eject, util-linux, exfatprogs,
+ gpgv, unar, usbguard
+Recommends: lightdm, x11-xserver-utils
+Section: admin
+Priority: optional
+Homepage: https://github.com/boas2834/firebridge
+Description: Prüfstation für USB-Sticks und Wechseldatenträger
+ Die Firebridge bindet USB-Sticks schreibgeschützt ein, prüft sie mit ClamAV,
+ YARA-X und eigenen Regeln für Makros, Skripte und Programme und überträgt
+ saubere Dateien auf ein Netzwerkshare. USBGuard sperrt neue Tastaturen und
+ Netzwerkadapter (BadUSB). Optional als Kiosk: sudo firebridge-kiosk an

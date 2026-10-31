@@ -1,0 +1,9 @@
+[Unit]
+Description=Firebridge-Kioskmodus %i (aus den Einstellungen der Oberfläche)
+Documentation=https://github.com/boas2834/firebridge
+
+[Service]
+Type=oneshot
+# Nur "an" oder "aus" (firebridge-kiosk lehnt alles andere ab). Der Prüfdienst selbst darf /etc nicht
+# beschreiben, deshalb diese eigene kurze Unit; gestartet nur von root (firebridged).
+ExecStart=/usr/local/bin/firebridge-kiosk %i

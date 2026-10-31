@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=XSession
+Name=Firebridge-Kiosk
+Comment=Nur die Firebridge im Vollbild, ohne Desktop
+Exec=firebridge-kiosk-session
+NoDisplay=true

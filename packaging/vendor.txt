@@ -1,0 +1,8 @@
+# Python-Bibliotheken, die Debian 13 nicht als Paket hat (feste Versionen, nur Binärpakete)
+yara-x==1.22.1
+oletools==0.60.2
+olefile==0.47
+pcodedmp==1.2.6
+pyparsing==3.2.3
+colorclass==2.2.2
+easygui==0.98.3

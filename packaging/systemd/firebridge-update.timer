@@ -1,0 +1,12 @@
+[Unit]
+Description=Firebridge: tägliches Update von Virensignaturen und YARA-Regeln
+Documentation=https://github.com/boas2834/firebridge
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+RandomizedDelaySec=30min
+# War der Rechner um 03:00 aus, läuft das Update kurz nach dem Einschalten
+Persistent=true
+
+[Install]
+WantedBy=timers.target

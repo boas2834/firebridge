@@ -1,0 +1,23 @@
+[Unit]
+Description=Firebridge: Virensignaturen und YARA-Regeln aktualisieren
+Documentation=https://github.com/boas2834/firebridge
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/firebridge-update
+# Läuft im Hintergrund, eine laufende Prüfung soll davon nichts merken
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=45min
+# Eigene Unit, eigene cgroup: die Netzwerk-Sperre des Prüfdienstes gilt hier nicht.
+# Eingebundene Datenträger sieht dieser Dienst nicht (privater Mount-Namespace von firebridged).
+ProtectSystem=full
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6 AF_NETLINK
